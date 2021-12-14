@@ -25,6 +25,9 @@ LineExtractionROS::LineExtractionROS(rclcpp::Node::SharedPtr nh)
 
   line_publisher_ = nh_->create_publisher<laser_lines::msg::LineSegmentList>(
       "line_segments", qos);
+  closest_point_to_line_publisher_ =
+      nh_->create_publisher<laser_lines::msg::ClosestPointToLineSegmentList>(
+          "closest_point_to_line_segments", qos);
   scan_subscriber_ = nh_->create_subscription<sensor_msgs::msg::LaserScan>(
       scan_topic_, qos,
       std::bind(&LineExtractionROS::laserScanCallback, this, _1));
@@ -239,6 +242,31 @@ void LineExtractionROS::loadParameters() {
 ///////////////////////////////////////////////////////////////////////////////
 // Populate messages
 ///////////////////////////////////////////////////////////////////////////////
+void LineExtractionROS::populateClosetPointToLineSegListMsg(
+    const std::vector<Line> &lines,
+    laser_lines::msg::ClosestPointToLineSegmentList &line_list_msg) {
+  for (std::vector<Line>::const_iterator cit = lines.begin();
+       cit != lines.end(); ++cit) {
+    laser_lines::msg::ClosestPointToLineSegment line_msg;
+    // line_msg.covariance = cit->getCovariance();
+    float qX;
+    float qY;
+    float d = DistanceFromLineSegmentToPoint(
+        cit->getStart()[0], cit->getStart()[1], cit->getEnd()[0],
+        cit->getEnd()[1], 0.0, 0.0, &qX, &qY);
+    line_msg.start[0] = 0.0;
+    line_msg.start[1] = 0.0;
+    line_msg.end[0] = qX;
+    line_msg.end[1] = qY;
+    line_msg.distance = d;
+
+    line_list_msg.closest_point_to_line_segments.push_back(line_msg);
+  }
+
+  line_list_msg.header.frame_id = frame_id_;
+  line_list_msg.header.stamp = nh_->now();
+}
+
 void LineExtractionROS::populateLineSegListMsg(
     const std::vector<Line> &lines,
     laser_lines::msg::LineSegmentList &line_list_msg) {
@@ -300,7 +328,7 @@ void LineExtractionROS::populateMarkerMsg(
 void LineExtractionROS::populateIntersectionMarkers(
     const std::vector<Line> &lines,
     visualization_msgs::msg::Marker &marker_msg) {
-  marker_msg.ns = "closest_point_to_walls";
+  marker_msg.ns = "closest_point_to_line_segments";
   marker_msg.id = 0;
   marker_msg.type = visualization_msgs::msg::Marker::LINE_LIST;
   marker_msg.scale.x = 0.1;
@@ -312,9 +340,9 @@ void LineExtractionROS::populateIntersectionMarkers(
        cit != lines.end(); ++cit) {
     float qX;
     float qY;
-    float d = DistanceFromLineSegmentToPoint(cit->getStart()[0],
-                                             cit->getStart()[1], cit->getEnd()[0],
-                                             cit->getEnd()[1], 0.0, 0.0, &qX, &qY);
+    float d = DistanceFromLineSegmentToPoint(
+        cit->getStart()[0], cit->getStart()[1], cit->getEnd()[0],
+        cit->getEnd()[1], 0.0, 0.0, &qX, &qY);
     geometry_msgs::msg::Point p_start;
     p_start.x = 0;
     p_start.y = 0;
@@ -367,12 +395,19 @@ void LineExtractionROS::laserScanCallback(
   std::vector<Line> lines;
   line_extraction_.extractLines(lines);
 
-  // Populate message
+  // Populate ListSegmentList message
   laser_lines::msg::LineSegmentList msg;
   populateLineSegListMsg(lines, msg);
 
   // Publish the lines
   line_publisher_->publish(msg);
+
+  // Populate ClosestPointToListSegmentList message
+  laser_lines::msg::ClosestPointToLineSegmentList msg2;
+  populateClosetPointToLineSegListMsg(lines, msg2);
+
+  // Publish the lines
+  closest_point_to_line_publisher_->publish(msg2);
 
   // Also publish markers if parameter publish_markers is set to true
   if (publish_markers_) {

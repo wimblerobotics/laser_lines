@@ -32,6 +32,8 @@ find_package(visualization_msgs REQUIRED)
 # find_package(tf2_ros REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/ClosestPointToLineSegment.msg"
+  "msg/ClosestPointToLineSegmentList.msg"
   "msg/LineSegment.msg"
   "msg/LineSegmentList.msg"
   DEPENDENCIES std_msgs

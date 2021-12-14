@@ -7,6 +7,8 @@
 #include <vector>
 #include <visualization_msgs/msg/marker.hpp>
 
+#include "laser_lines/msg/closest_point_to_line_segment.hpp"
+#include "laser_lines/msg/closest_point_to_line_segment_list.hpp"
 #include "laser_lines/msg/line_segment.hpp"
 #include "laser_lines/msg/line_segment_list.hpp"
 #include "line.h"
@@ -30,8 +32,11 @@ class LineExtractionROS {
   rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr scan_subscriber_;
   rclcpp::Publisher<laser_lines::msg::LineSegmentList>::SharedPtr
       line_publisher_;
+  rclcpp::Publisher<laser_lines::msg::ClosestPointToLineSegmentList>::SharedPtr
+      closest_point_to_line_publisher_;
   rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr
       marker_publisher_;
+
   // Parameters
   double bearing_std_dev_;
   std::string frame_id_;
@@ -53,18 +58,22 @@ class LineExtractionROS {
   bool data_cached_;  // true after first scan used to cache data
   // Members
   void loadParameters();
+  void populateClosetPointToLineSegListMsg(
+      const std::vector<Line> &,
+      laser_lines::msg::ClosestPointToLineSegmentList &line_list_msg);
   void populateLineSegListMsg(const std::vector<Line> &,
                               laser_lines::msg::LineSegmentList &line_list_msg);
   void populateMarkerMsg(const std::vector<Line> &,
                          visualization_msgs::msg::Marker &msg);
   void populateIntersectionMarkers(const std::vector<Line> &,
-                         visualization_msgs::msg::Marker &msg);
+                                   visualization_msgs::msg::Marker &msg);
   void cacheData(const sensor_msgs::msg::LaserScan::ConstSharedPtr);
   void laserScanCallback(const sensor_msgs::msg::LaserScan::ConstSharedPtr);
   rcl_interfaces::msg::SetParametersResult parametersCallback(
       const std::vector<rclcpp::Parameter> &parameters);
 
-  rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr callback_handle_;
+  rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr
+      callback_handle_;
 };
 
 }  // namespace laser_lines
