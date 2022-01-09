@@ -182,7 +182,7 @@ rcl_interfaces::msg::SetParametersResult LineExtractionROS::parametersCallback(
 ///////////////////////////////////////////////////////////////////////////////
 void LineExtractionROS::loadParameters() {
   nh_->declare_parameter("bearing_std_dev", 1e-3);
-  nh_->declare_parameter("frame_id", "base_link");
+  nh_->declare_parameter("frame_id", "lidar_link");
   nh_->declare_parameter("least_sq_angle_thresh", 1e-4);
   nh_->declare_parameter("least_sq_radius_thresh", 1e-4);
   nh_->declare_parameter("max_line_gap", 0.4);
