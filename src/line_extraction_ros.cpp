@@ -259,6 +259,7 @@ void LineExtractionROS::populateClosetPointToLineSegListMsg(
     line_msg.end[0] = qX;
     line_msg.end[1] = qY;
     line_msg.distance = d;
+    line_msg.angle = cit->getAngle();
 
     line_list_msg.closest_point_to_line_segments.push_back(line_msg);
   }
@@ -340,7 +341,7 @@ void LineExtractionROS::populateIntersectionMarkers(
        cit != lines.end(); ++cit) {
     float qX;
     float qY;
-    float d = DistanceFromLineSegmentToPoint(
+    /*float d = */ DistanceFromLineSegmentToPoint(
         cit->getStart()[0], cit->getStart()[1], cit->getEnd()[0],
         cit->getEnd()[1], 0.0, 0.0, &qX, &qY);
     geometry_msgs::msg::Point p_start;
