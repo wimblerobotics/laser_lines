@@ -341,17 +341,22 @@ void LineExtractionROS::populateIntersectionMarkers(
        cit != lines.end(); ++cit) {
     float qX;
     float qY;
-    /*float d = */ DistanceFromLineSegmentToPoint(
+    float d = DistanceFromLineSegmentToPoint(
         cit->getStart()[0], cit->getStart()[1], cit->getEnd()[0],
         cit->getEnd()[1], 0.0, 0.0, &qX, &qY);
+    const double desired_distance_from_wall =
+        0.5;  // Want the robot center to be half a meter from wall.
+    double needed_multiplier = 1 - (desired_distance_from_wall / d);
+    // std::cout << "d: " << d << ", qX: " << qX << ", qY: " << qY
+    //           << "mplr: " << needed_multiplier << std::endl;
     geometry_msgs::msg::Point p_start;
     p_start.x = 0;
     p_start.y = 0;
     p_start.z = 0;
     marker_msg.points.push_back(p_start);
     geometry_msgs::msg::Point p_end;
-    p_end.x = qX;
-    p_end.y = qY;
+    p_end.x = qX * needed_multiplier;
+    p_end.y = qY * needed_multiplier;
     p_end.z = 0;
     marker_msg.points.push_back(p_end);
   }
