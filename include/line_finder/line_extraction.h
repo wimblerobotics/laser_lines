@@ -5,10 +5,10 @@
 #include <vector>
 //#include <boost/array.hpp>
 #include <Eigen/Dense>
-#include "laser_lines/utilities.h"
-#include "laser_lines/line.h"
+#include "line_finder/utilities.h"
+#include "line_finder/line.h"
 
-namespace laser_lines
+namespace line_finder
 {
 
 class LineExtraction
@@ -57,6 +57,6 @@ private:
   void   split(const std::vector<unsigned int>&);
 };
 
-} // namespace laser_lines
+} // namespace line_finder
 
 #endif

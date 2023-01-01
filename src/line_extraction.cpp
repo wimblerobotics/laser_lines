@@ -1,9 +1,9 @@
-#include "laser_lines/line_extraction.h"
+#include "line_finder/line_extraction.h"
 #include <algorithm>
 #include <Eigen/Dense>
 #include <iostream>
 
-namespace laser_lines
+namespace line_finder
 {
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -360,4 +360,4 @@ void LineExtraction::split(const std::vector<unsigned int>& indices)
 
 }
 
-} // namespace laser_lines
+} // namespace line_finder

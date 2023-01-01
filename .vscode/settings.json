@@ -1,0 +1,18 @@
+{
+  "python.autoComplete.extraPaths": [
+    "/home/ros/raven_ws/install/line_finder/lib/python3.8/site-packages",
+    "/home/ros/realsense-ros/install/realsense2_camera_msgs/lib/python3.8/site-packages",
+    "/home/ros/raven_ws/install/msgs/lib/python3.8/site-packages",
+    "/home/ros/microros_ws/install/micro_ros_msgs/lib/python3.8/site-packages",
+    "/home/ros/microros_ws/install/drive_base_msgs/lib/python3.8/site-packages",
+    "/opt/ros/galactic/lib/python3.8/site-packages"
+  ],
+  "python.analysis.extraPaths": [
+    "/home/ros/raven_ws/install/line_finder/lib/python3.8/site-packages",
+    "/home/ros/realsense-ros/install/realsense2_camera_msgs/lib/python3.8/site-packages",
+    "/home/ros/raven_ws/install/msgs/lib/python3.8/site-packages",
+    "/home/ros/microros_ws/install/micro_ros_msgs/lib/python3.8/site-packages",
+    "/home/ros/microros_ws/install/drive_base_msgs/lib/python3.8/site-packages",
+    "/opt/ros/galactic/lib/python3.8/site-packages"
+  ]
+}

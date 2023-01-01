@@ -1,0 +1,31 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/ros/raven_ws/install/line_finder/include/**",
+        "/home/ros/realsense-ros/install/realsense2_camera/include/**",
+        "/home/ros/realsense-ros/install/realsense2_camera_msgs/include/**",
+        "/home/ros/raven_ws/install/msgs/include/**",
+        "/home/ros/raven_ws/install/ira_laser_tools/include/**",
+        "/home/ros/microros_ws/install/micro_ros_agent/include/**",
+        "/home/ros/microros_ws/install/micro_ros_msgs/include/**",
+        "/home/ros/microros_ws/install/drive_base_msgs/include/**",
+        "/opt/ros/galactic/include/**",
+        "/home/ros/raven_ws/src/line_finder/include/**",
+        "/home/ros/raven_ws/src/ldlidar/include/**",
+        "/home/ros/raven_ws/src/raven/ira_laser_tools/src/ira_laser_tools/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

@@ -9,14 +9,14 @@ from launch.substitutions import LaunchConfiguration, TextSubstitution, PathJoin
 def generate_launch_description():
 
     ld = LaunchDescription()
-    laser_lines_node = Node(
+    line_finder_node = Node(
         # prefix=['xterm -e gdb -ex run --args'],
-        package = 'laser_lines',
-        executable = 'bt',
-        name = 'bt',
+        package = 'line_finder',
+        executable = 'lf',
+        name = 'line_finder',
         output = 'screen'
     )
 
-    ld.add_action(laser_lines_node)
+    ld.add_action(line_finder_node)
 
     return ld

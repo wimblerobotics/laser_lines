@@ -4,7 +4,7 @@
 #include <vector>
 #include <cmath>
 
-namespace laser_lines
+namespace line_finder
 {
 
 struct CachedData
@@ -60,6 +60,6 @@ inline double pi_to_pi(double angle)
   return angle;
 }
 
-} // namespace laser_lines
+} // namespace line_finder
 
 #endif

@@ -1,6 +1,6 @@
-#include "laser_lines/line.h"
+#include "line_finder/line.h"
 
-namespace laser_lines
+namespace line_finder
 {
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -301,4 +301,4 @@ void Line::radiusFromLeastSq()
   radius_ *= p_rr_;
 }
 
-} // namespace laser_lines
+} // namespace line_finder

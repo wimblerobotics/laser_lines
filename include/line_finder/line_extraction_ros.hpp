@@ -7,32 +7,31 @@
 #include <vector>
 #include <visualization_msgs/msg/marker.hpp>
 
-#include "laser_lines/msg/closest_point_to_line_segment.hpp"
-#include "laser_lines/msg/closest_point_to_line_segment_list.hpp"
-#include "laser_lines/msg/line_segment.hpp"
-#include "laser_lines/msg/line_segment_list.hpp"
+#include "line_finder/msg/closest_point_to_line_segment.hpp"
+#include "line_finder/msg/closest_point_to_line_segment_list.hpp"
+#include "line_finder/msg/line_segment.hpp"
+#include "line_finder/msg/line_segment_list.hpp"
 #include "line.h"
 #include "line_extraction.h"
 #include "rcl_interfaces/msg/set_parameters_result.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-namespace laser_lines {
+namespace line_finder {
 
-class LineExtractionROS {
+class LineExtractionROS : public rclcpp::Node {
  public:
   // Constructor / destructor
-  LineExtractionROS(rclcpp::Node::SharedPtr nh);
+  LineExtractionROS();
   ~LineExtractionROS();
   // Running
-  void run();
+//   void run();
 
  private:
   // ROS
-  rclcpp::Node::SharedPtr nh_;
   rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr scan_subscriber_;
-  rclcpp::Publisher<laser_lines::msg::LineSegmentList>::SharedPtr
+  rclcpp::Publisher<line_finder::msg::LineSegmentList>::SharedPtr
       line_publisher_;
-  rclcpp::Publisher<laser_lines::msg::ClosestPointToLineSegmentList>::SharedPtr
+  rclcpp::Publisher<line_finder::msg::ClosestPointToLineSegmentList>::SharedPtr
       closest_point_to_line_publisher_;
   rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr
       marker_publisher_;
@@ -60,9 +59,9 @@ class LineExtractionROS {
   void loadParameters();
   void populateClosetPointToLineSegListMsg(
       const std::vector<Line> &,
-      laser_lines::msg::ClosestPointToLineSegmentList &line_list_msg);
+      line_finder::msg::ClosestPointToLineSegmentList &line_list_msg);
   void populateLineSegListMsg(const std::vector<Line> &,
-                              laser_lines::msg::LineSegmentList &line_list_msg);
+                              line_finder::msg::LineSegmentList &line_list_msg);
   void populateMarkerMsg(const std::vector<Line> &,
                          visualization_msgs::msg::Marker &msg);
   void populateIntersectionMarkers(const std::vector<Line> &,
@@ -73,9 +72,9 @@ class LineExtractionROS {
       const std::vector<rclcpp::Parameter> &parameters);
 
   rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr
-      callback_handle_;
+      parameter_callback_handle_;
 };
 
-}  // namespace laser_lines
+}  // namespace line_finder
 
 #endif

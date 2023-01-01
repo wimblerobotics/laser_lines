@@ -1,4 +1,4 @@
-#include "laser_lines/line_extraction_ros.h"
+#include "line_finder/line_extraction_ros.hpp"
 
 #include <cmath>
 
@@ -8,35 +8,32 @@
 
 using std::placeholders::_1;
 
-namespace laser_lines {
+namespace line_finder {
 
-///////////////////////////////////////////////////////////////////////////////
-// Constructor / destructor
-///////////////////////////////////////////////////////////////////////////////
-LineExtractionROS::LineExtractionROS(rclcpp::Node::SharedPtr nh)
-    : nh_(nh), data_cached_(false) {
+LineExtractionROS::LineExtractionROS()
+    : Node("line_finder_node"), data_cached_(false) {
   loadParameters();
 
   auto qos = rclcpp::QoS(
       rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST, 10));
   qos.reliability(RMW_QOS_POLICY_RELIABILITY_RELIABLE);
-  qos.durability(RMW_QOS_POLICY_DURABILITY_VOLATILE);
+  qos.durability(RMW_QOS_POLICY_DURABILITY_SYSTEM_DEFAULT);
   qos.avoid_ros_namespace_conventions(false);
 
-  line_publisher_ = nh_->create_publisher<laser_lines::msg::LineSegmentList>(
-      "line_segments", qos);
+  line_publisher_ =
+      create_publisher<line_finder::msg::LineSegmentList>("line_segments", qos);
   closest_point_to_line_publisher_ =
-      nh_->create_publisher<laser_lines::msg::ClosestPointToLineSegmentList>(
+      create_publisher<line_finder::msg::ClosestPointToLineSegmentList>(
           "closest_point_to_line_segments", qos);
-  scan_subscriber_ = nh_->create_subscription<sensor_msgs::msg::LaserScan>(
+  scan_subscriber_ = create_subscription<sensor_msgs::msg::LaserScan>(
       scan_topic_, qos,
       std::bind(&LineExtractionROS::laserScanCallback, this, _1));
   if (publish_markers_) {
-    marker_publisher_ = nh_->create_publisher<visualization_msgs::msg::Marker>(
-        "line_markers", qos);
+    marker_publisher_ =
+        create_publisher<visualization_msgs::msg::Marker>("line_markers", qos);
   }
 
-  callback_handle_ = nh->add_on_set_parameters_callback(std::bind(
+  parameter_callback_handle_ = add_on_set_parameters_callback(std::bind(
       &LineExtractionROS::parametersCallback, this, std::placeholders::_1));
 }
 
@@ -45,25 +42,25 @@ LineExtractionROS::~LineExtractionROS() {}
 ///////////////////////////////////////////////////////////////////////////////
 // Run
 ///////////////////////////////////////////////////////////////////////////////
-void LineExtractionROS::run() {
-  // Extract the lines
-  // std::vector<Line> lines;
-  // line_extraction_.extractLines(lines);
+// void LineExtractionROS::run() {
+//   // Extract the linesn
+//   // std::vector<Line> lines;
+//   // line_extraction_.extractLines(lines);
 
-  // // Populate message
-  // laser_lines::msg::LineSegmentList msg;
-  // populateLineSegListMsg(lines, msg);
+//   // // Populate message
+//   // line_finder::msg::LineSegmentList msg;
+//   // populateLineSegListMsg(lines, msg);
 
-  // // Publish the lines
-  // line_publisher_->publish(msg);
+//   // // Publish the lines
+//   // line_publisher_->publish(msg);
 
-  // // Also publish markers if parameter publish_markers is set to true
-  // if (publish_markers_) {
-  //   visualization_msgs::msg::Marker marker_msg;
-  //   populateMarkerMsg(lines, marker_msg);
-  //   marker_publisher_->publish(marker_msg);
-  // }
-}
+//   // // Also publish markers if parameter publish_markers is set to true
+//   // if (publish_markers_) {
+//   //   visualization_msgs::msg::Marker marker_msg;
+//   //   populateMarkerMsg(lines, marker_msg);
+//   //   marker_publisher_->publish(marker_msg);
+//   // }
+// }
 
 rcl_interfaces::msg::SetParametersResult LineExtractionROS::parametersCallback(
     const std::vector<rclcpp::Parameter> &parameters) {
@@ -181,62 +178,90 @@ rcl_interfaces::msg::SetParametersResult LineExtractionROS::parametersCallback(
 // Load ROS parameters
 ///////////////////////////////////////////////////////////////////////////////
 void LineExtractionROS::loadParameters() {
-  nh_->declare_parameter("bearing_std_dev", 1e-3);
-  nh_->declare_parameter("frame_id", "lidar_link");
-  nh_->declare_parameter("least_sq_angle_thresh", 1e-4);
-  nh_->declare_parameter("least_sq_radius_thresh", 1e-4);
-  nh_->declare_parameter("max_line_gap", 0.4);
-  nh_->declare_parameter("max_range", 20.0);
-  nh_->declare_parameter("min_line_length", 0.5);
-  nh_->declare_parameter("min_line_points", 9);
-  nh_->declare_parameter("min_range", 0.4);
-  nh_->declare_parameter("min_split_dist", 0.05);
-  nh_->declare_parameter("outlier_dist", 0.05);
-  nh_->declare_parameter("publish_markers", true);
-  nh_->declare_parameter("range_std_dev", 0.02);
-  nh_->declare_parameter("scan_topic", "scan");
+  this->declare_parameter("bearing_std_dev", 1e-3);
+  this->declare_parameter<std::string>("frame_id", "base_link");
+  this->declare_parameter("least_sq_angle_thresh", 1e-4);
+  this->declare_parameter("least_sq_radius_thresh", 1e-4);
+  this->declare_parameter("max_line_gap", 0.4);
+  this->declare_parameter("max_range", 20.0);
+  this->declare_parameter("min_line_length", 0.5);
+  this->declare_parameter("min_line_points", 9);
+  this->declare_parameter("min_range", 0.4);
+  this->declare_parameter("min_split_dist", 0.05);
+  this->declare_parameter("outlier_dist", 0.05);
+  this->declare_parameter("publish_markers", true);
+  this->declare_parameter("range_std_dev", 0.02);
+  this->declare_parameter<std::string>("scan_topic", "scan");
 
-  bearing_std_dev_ = nh_->get_parameter("bearing_std_dev").as_double();
+  bearing_std_dev_ = this->get_parameter("bearing_std_dev").as_double();
   line_extraction_.setBearingVariance(bearing_std_dev_ * bearing_std_dev_);
+  RCLCPP_INFO(rclcpp::get_logger("LineExtractionROS"),
+                            "bearing_std_dev: %f", bearing_std_dev_);
 
-  frame_id_ = nh_->get_parameter("frame_id").as_string();
+  frame_id_ = this->get_parameter("frame_id").as_string();
+  RCLCPP_INFO(rclcpp::get_logger("LineExtractionROS"), "frame_id: %s",
+              frame_id_.c_str());
 
   least_sq_angle_thresh_ =
-      nh_->get_parameter("least_sq_angle_thresh").as_double();
+      this->get_parameter("least_sq_angle_thresh").as_double();
   line_extraction_.setLeastSqAngleThresh(least_sq_angle_thresh_);
+  RCLCPP_INFO(rclcpp::get_logger("LineExtractionROS"),
+              "least_sq_angle_thresh: %f", least_sq_angle_thresh_);
 
   least_sq_radius_thresh_ =
-      nh_->get_parameter("least_sq_radius_thresh").as_double();
+      this->get_parameter("least_sq_radius_thresh").as_double();
   line_extraction_.setLeastSqRadiusThresh(least_sq_radius_thresh_);
+  RCLCPP_INFO(rclcpp::get_logger("LineExtractionROS"),
+              "least_sq_radius_thresh: %f", least_sq_radius_thresh_);
 
-  max_line_gap_ = nh_->get_parameter("max_line_gap").as_double();
+  max_line_gap_ = this->get_parameter("max_line_gap").as_double();
   line_extraction_.setMaxLineGap(max_line_gap_);
+  RCLCPP_INFO(rclcpp::get_logger("LineExtractionROS"), "max_line_gap: %f",
+              max_line_gap_);
 
-  max_range_ = nh_->get_parameter("max_range").as_double();
+  max_range_ = this->get_parameter("max_range").as_double();
   line_extraction_.setMaxRange(max_range_);
+  RCLCPP_INFO(rclcpp::get_logger("LineExtractionROS"), "max_range: %f",
+              max_range_);
 
-  min_line_length_ = nh_->get_parameter("min_line_length").as_double();
+  min_line_length_ = this->get_parameter("min_line_length").as_double();
   line_extraction_.setMinLineLength(min_line_length_);
+  RCLCPP_INFO(rclcpp::get_logger("LineExtractionROS"), "min_line_length: %f",
+              min_line_length_);
 
-  min_line_points_ = nh_->get_parameter("min_line_points").as_int();
+  min_line_points_ = this->get_parameter("min_line_points").as_int();
   line_extraction_.setMinLinePoints(
       static_cast<unsigned int>(min_line_points_));
+  RCLCPP_INFO(rclcpp::get_logger("LineExtractionROS"), "min_line_points: %d",
+              min_line_points_);
 
-  min_range_ = nh_->get_parameter("min_range").as_double();
+  min_range_ = this->get_parameter("min_range").as_double();
   line_extraction_.setMinRange(min_range_);
+  RCLCPP_INFO(rclcpp::get_logger("LineExtractionROS"), "min_range: %f",
+              min_range_);
 
-  min_split_dist_ = nh_->get_parameter("min_split_dist").as_double();
+  min_split_dist_ = this->get_parameter("min_split_dist").as_double();
   line_extraction_.setMinSplitDist(min_split_dist_);
+  RCLCPP_INFO(rclcpp::get_logger("LineExtractionROS"), "min_split_dist: %f",
+              min_split_dist_);
 
-  outlier_dist_ = nh_->get_parameter("outlier_dist").as_double();
+  outlier_dist_ = this->get_parameter("outlier_dist").as_double();
   line_extraction_.setOutlierDist(outlier_dist_);
+  RCLCPP_INFO(rclcpp::get_logger("LineExtractionROS"), "outlier_dist: %f",
+              outlier_dist_);
 
-  publish_markers_ = nh_->get_parameter("publish_markers").as_bool();
+  publish_markers_ = this->get_parameter("publish_markers").as_bool();
+  RCLCPP_INFO(rclcpp::get_logger("LineExtractionROS"), "publish_markers: %s",
+              publish_markers_ ? "True" : "False");
 
-  range_std_dev_ = nh_->get_parameter("range_std_dev").as_double();
+  range_std_dev_ = this->get_parameter("range_std_dev").as_double();
   line_extraction_.setRangeVariance(range_std_dev_ * range_std_dev_);
+  RCLCPP_INFO(rclcpp::get_logger("LineExtractionROS"), "range_std_dev: %f",
+              range_std_dev_);
 
-  scan_topic_ = nh_->get_parameter("scan_topic").as_string();
+  scan_topic_ = this->get_parameter("scan_topic").as_string();
+  RCLCPP_INFO(rclcpp::get_logger("LineExtractionROS"), "scan_topic: %s",
+              scan_topic_.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -244,10 +269,10 @@ void LineExtractionROS::loadParameters() {
 ///////////////////////////////////////////////////////////////////////////////
 void LineExtractionROS::populateClosetPointToLineSegListMsg(
     const std::vector<Line> &lines,
-    laser_lines::msg::ClosestPointToLineSegmentList &line_list_msg) {
+    line_finder::msg::ClosestPointToLineSegmentList &line_list_msg) {
   for (std::vector<Line>::const_iterator cit = lines.begin();
        cit != lines.end(); ++cit) {
-    laser_lines::msg::ClosestPointToLineSegment line_msg;
+    line_finder::msg::ClosestPointToLineSegment line_msg;
     // line_msg.covariance = cit->getCovariance();
     float qX;
     float qY;
@@ -265,15 +290,15 @@ void LineExtractionROS::populateClosetPointToLineSegListMsg(
   }
 
   line_list_msg.header.frame_id = frame_id_;
-  line_list_msg.header.stamp = nh_->now();
+  line_list_msg.header.stamp = this->now();
 }
 
 void LineExtractionROS::populateLineSegListMsg(
     const std::vector<Line> &lines,
-    laser_lines::msg::LineSegmentList &line_list_msg) {
+    line_finder::msg::LineSegmentList &line_list_msg) {
   for (std::vector<Line>::const_iterator cit = lines.begin();
        cit != lines.end(); ++cit) {
-    laser_lines::msg::LineSegment line_msg;
+    line_finder::msg::LineSegment line_msg;
     line_msg.angle = cit->getAngle();
     line_msg.radius = cit->getRadius();
     auto covariance = cit->getCovariance();
@@ -295,13 +320,13 @@ void LineExtractionROS::populateLineSegListMsg(
   }
 
   line_list_msg.header.frame_id = frame_id_;
-  line_list_msg.header.stamp = nh_->now();
+  line_list_msg.header.stamp = this->now();
 }
 
 void LineExtractionROS::populateMarkerMsg(
     const std::vector<Line> &lines,
     visualization_msgs::msg::Marker &marker_msg) {
-  marker_msg.ns = "laser_lines";
+  marker_msg.ns = "line_finder";
   marker_msg.id = 0;
   marker_msg.type = visualization_msgs::msg::Marker::LINE_LIST;
   marker_msg.scale.x = 0.1;
@@ -323,7 +348,7 @@ void LineExtractionROS::populateMarkerMsg(
     marker_msg.points.push_back(p_end);
   }
   marker_msg.header.frame_id = frame_id_;
-  marker_msg.header.stamp = nh_->now();
+  marker_msg.header.stamp = this->now();
 }
 
 void LineExtractionROS::populateIntersectionMarkers(
@@ -361,7 +386,7 @@ void LineExtractionROS::populateIntersectionMarkers(
     marker_msg.points.push_back(p_end);
   }
   marker_msg.header.frame_id = frame_id_;
-  marker_msg.header.stamp = nh_->now();
+  marker_msg.header.stamp = this->now();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -402,14 +427,14 @@ void LineExtractionROS::laserScanCallback(
   line_extraction_.extractLines(lines);
 
   // Populate ListSegmentList message
-  laser_lines::msg::LineSegmentList msg;
+  line_finder::msg::LineSegmentList msg;
   populateLineSegListMsg(lines, msg);
 
   // Publish the lines
   line_publisher_->publish(msg);
 
   // Populate ClosestPointToListSegmentList message
-  laser_lines::msg::ClosestPointToLineSegmentList msg2;
+  line_finder::msg::ClosestPointToLineSegmentList msg2;
   populateClosetPointToLineSegListMsg(lines, msg2);
 
   // Publish the lines
@@ -428,4 +453,4 @@ void LineExtractionROS::laserScanCallback(
   }
 }
 
-}  // namespace laser_lines
+}  // namespace line_finder

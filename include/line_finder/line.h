@@ -3,9 +3,9 @@
 
 #include <vector>
 #include <boost/array.hpp>
-#include "laser_lines/utilities.h"
+#include "line_finder/utilities.h"
 
-namespace laser_lines
+namespace line_finder
 {
 
 class Line
@@ -62,6 +62,6 @@ private:
   void    radiusFromLeastSq();
 }; // class Line
 
-} // namespace laser_lines
+} // namespace line_finder
 
 #endif
