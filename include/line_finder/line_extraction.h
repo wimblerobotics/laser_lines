@@ -4,7 +4,7 @@
 #include <cmath>
 #include <vector>
 //#include <boost/array.hpp>
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 #include "line_finder/utilities.h"
 #include "line_finder/line.h"
 

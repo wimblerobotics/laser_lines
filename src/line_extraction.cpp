@@ -1,6 +1,6 @@
 #include "line_finder/line_extraction.h"
 #include <algorithm>
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 #include <iostream>
 
 namespace line_finder
