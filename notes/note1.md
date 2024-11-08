@@ -1,3 +1,5 @@
+## ros_output
+```markdown
 [lf-1] [INFO] [1731088048.658800595] [LineExtractionROS]: bearing_std_dev: 0.001000
 [lf-1] [INFO] [1731088048.658831933] [LineExtractionROS]: frame_id: base_link
 [lf-1] [INFO] [1731088048.658835359] [LineExtractionROS]: least_sq_angle_thresh: 0.000100
@@ -12,11 +14,12 @@
 [lf-1] [INFO] [1731088048.658863331] [LineExtractionROS]: publish_markers: True
 [lf-1] [INFO] [1731088048.658865485] [LineExtractionROS]: range_std_dev: 0.020000
 [lf-1] [INFO] [1731088048.658867830] [LineExtractionROS]: scan_topic: scan
-
-
---- --- ---
-
+```
 ---
+## line_markers
+<small>
+
+```
 header:
   stamp:
     sec: 1731088321
@@ -91,11 +94,14 @@ mesh_file:
   filename: ''
   data: []
 mesh_use_embedded_materials: false
+```
+</small>
 
+---
+# line_segments
+<small>
 
---- --- ---
-
-
+```
 header:
   stamp:
     sec: 1731088411
@@ -141,5 +147,7 @@ line_segments:
   end:
   - -2.0274786961727362
   - 2.428607231196139
+```
+</small>
 
 ![alt text](<Screenshot from 2024-11-08 09-53-02.png>)
