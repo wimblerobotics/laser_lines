@@ -1,36 +1,25 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.5)
 project(line_finder)
 
 set(CMAKE_BUILD_TYPE Debug)
 
-# Specify the C++ standard
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
-
-# Include directories
-include_directories(
-  ${PROJECT_SOURCE_DIR}/include
-)
-
-set(SOURCES_MOTOR_CHARACTERIZATION
+set(PACKAGE_SOURCES
   src/line_extraction_node.cpp
   src/line.cpp
   src/line_extraction.cpp
   src/line_extraction_ros.cpp
 )
 
-# find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(builtin_interfaces REQUIRED)
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+find_package(geometry_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(sensor_msgs)
 find_package(std_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
 find_package(visualization_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
@@ -48,47 +37,45 @@ include_directories(
   ${PROJECT_BINARY_DIR}/rosidl_generator_cpp
 )
 
-add_executable(lf ${SOURCES_MOTOR_CHARACTERIZATION})
+add_executable(lf ${PACKAGE_SOURCES})
 
 target_include_directories(lf PUBLIC
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
 )
 
 ament_target_dependencies(
   lf
   Eigen3
+  geometry_msgs
   rclcpp
   rosidl_default_generators
   sensor_msgs
   std_msgs
+  tf2
+  tf2_ros
   visualization_msgs
 )
 
 target_link_libraries(lf
   "${cpp_typesupport_target}"
 )
-
 rosidl_get_typesupport_target(cpp_typesupport_target
   ${PROJECT_NAME} rosidl_typesupport_cpp)
 
 target_link_libraries(lf "${cpp_typesupport_target}")
 
-install(DIRECTORY include/
-  DESTINATION include/
-)
-
 install(
-  TARGETS lf
-  DESTINATION lib/${PROJECT_NAME}
+TARGETS lf
+DESTINATION lib/${PROJECT_NAME}
 )
 
 # Install launch files.
 install(DIRECTORY
-  launch
-  DESTINATION share/${PROJECT_NAME}/
+launch
+DESTINATION share/${PROJECT_NAME}/
 )
 
-ament_export_include_directories(include)
+# ament_export_include_directories(include)
 
 ament_package()
