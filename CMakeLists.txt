@@ -33,17 +33,12 @@ find_package(sensor_msgs)
 find_package(std_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 
-rosidl_generate_interfaces(${PROJECT_NAME}_msg
+rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/ClosestPointToLineSegment.msg"
   "msg/ClosestPointToLineSegmentList.msg"
   "msg/LineSegment.msg"
   "msg/LineSegmentList.msg"
   DEPENDENCIES builtin_interfaces std_msgs
-)
-
-rosidl_get_typesupport_target(cpp_typesupport_target
-  ${PROJECT_NAME}_msg
-  "rosidl_typesupport_cpp"
 )
 
 ament_export_dependencies(rosidl_default_runtime)
@@ -74,28 +69,11 @@ target_link_libraries(lf
   "${cpp_typesupport_target}"
 )
 
+rosidl_get_typesupport_target(cpp_typesupport_target
+  ${PROJECT_NAME} rosidl_typesupport_cpp)
 
-rosidl_target_interfaces(
-  lf
-  ${PROJECT_NAME}_msg
-  "rosidl_typesupport_cpp"
-)
+target_link_libraries(lf "${cpp_typesupport_target}")
 
-# # ament_target_dependencies(
-# # ${PROJECT_NAME}
-# # rclcpp
-# # )
-# target_include_directories(
-# lf
-# PUBLIC
-# ${EIGEN3_INCLUDE_DIR}
-# ${rclcpp_INCLUDE_DIRS}
-# ${CMAKE_CURRENT_BINARY_DIR}/msg/rosidl_generator_c__visibility_control
-# # $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-# # $<INSTALL_INTERFACE:include>
-# )
-
-# target_compile_features(${PROJECT_NAME} PUBLIC c_std_99 cxx_std_17) # Require C99 and C++17
 install(DIRECTORY include/
   DESTINATION include/
 )
@@ -113,6 +91,4 @@ install(DIRECTORY
 
 ament_export_include_directories(include)
 
-# ament_export_dependencies(rosidl_default_runtime)
-# ament_export_dependencies(${dependencies})
 ament_package()

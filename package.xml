@@ -10,15 +10,15 @@
   <group_depend>rosidl_typesupport_c_packages</group_depend>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
-
   <buildtool_depend>eigen3_cmake_module</buildtool_depend>
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
   <build_depend>eigen</build_depend>
   <buildtool_export_depend>eigen3_cmake_module</buildtool_export_depend>
   <depend>rclcpp</depend>
   <depend>std_msgs</depend>
   <depend>visualization_msgs</depend>
-
-  <build_depend>rosidl_default_generators</build_depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
 
   <exec_depend>rosidl_default_runtime</exec_depend>
 
